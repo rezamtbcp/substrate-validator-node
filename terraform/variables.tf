@@ -9,9 +9,9 @@ variable "project" {
   type        = map(any)
   default = {
     substrate = {
-      public_subnet_count  = 1,
-      private_subnet_count = 1,
-      instances            = 2,
+      public_subnet_count  = 3,
+      private_subnet_count = 3,
+      instances            = 3,
       instance_type        = "t2.nano",
       environment          = "prod"
     }
