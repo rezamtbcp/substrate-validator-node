@@ -4,6 +4,11 @@ variable "aws_region" {
   default     = "ap-southeast-2"
 }
 
+variable "iam_role_arn" {
+  description = "AWS Role ARN for Deploying IaaC Code"
+  type        = string
+}
+
 variable "project" {
   description = "Map of project names to configuration"
   type        = map(any)
