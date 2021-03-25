@@ -1,5 +1,5 @@
 module "validator_nodes" {
-  source = "modules/aws-instance"
+  source = "./modules/aws-instance"
 
   for_each = var.project
 

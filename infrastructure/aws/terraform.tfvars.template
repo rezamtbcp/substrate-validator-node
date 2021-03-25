@@ -1,0 +1,11 @@
+aws_region = "ap-southeast-2"
+iam_role_arn = "arn:aws:iam::123456789012:role/TerraformBuilderRole"
+project = {
+  substrate = {
+    public_subnet_count = "3",
+    private_subnet_count = "3",
+    instances = "3",
+    instance_type = "t2.nano",
+    environment = "prod"
+  }
+}

@@ -1,4 +1,4 @@
 output "ValidatorNodes" {
-  description = "IP of Validator Nodes"
+  description = "Validator Nodes IP Addresses"
   value       = module.validator_nodes
-}
+} 
