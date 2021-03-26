@@ -1,0 +1,36 @@
+[Unit]
+Description=Substrate Node
+
+[Service]
+User=substrate
+Group=substrate
+ExecStart=/usr/local/bin/substrate \
+  --name sub-node-{{ groups['validator'].index(inventory_hostname) }} \
+  --validator \
+  --public-addr=/ip4/{{ hostvars[inventory_hostname].public_ip.json.ip }}/tcp/{{ proxy_port }} \
+  --listen-addr=/ip4/127.0.0.1/tcp/{{ p2p_port }} \
+  --rpc-methods=Unsafe \
+  {% if hostvars[inventory_hostname].substrate_additional_common_flags is defined and hostvars[inventory_hostname].substrate_additional_common_flags|length %}
+  {{ hostvars[inventory_hostname].substrate_additional_common_flags }} \
+  {% endif %}
+  {% if hostvars[inventory_hostname].substrate_additional_validator_flags is defined and hostvars[inventory_hostname].substrate_additional_validator_flags|length %}
+  {{ hostvars[inventory_hostname].substrate_additional_validator_flags }} \
+  {% endif %}
+  {% if hostvars[inventory_hostname].loggingFilter is defined and hostvars[inventory_hostname].loggingFilter|length %}
+  -l{{ hostvars[inventory_hostname].loggingFilter }} \
+  {% endif %}
+  --chain={{ chain }} \
+  {% if hostvars[inventory_hostname].base_path is defined and hostvars[inventory_hostname].base_path|length %}
+  --base-path '{{ hostvars[inventory_hostname].base_path }}' \
+  {% endif %}
+  {% if hostvars[inventory_hostname].telemetryUrl is defined and hostvars[inventory_hostname].telemetryUrl|length %}
+  --telemetry-url '{{ hostvars[inventory_hostname].telemetryUrl }} 1'
+  {% else %}
+  --no-telemetry
+  {% endif %}
+
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target

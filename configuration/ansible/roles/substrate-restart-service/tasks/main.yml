@@ -1,0 +1,4 @@
+- name: restart substrate service
+  systemd:
+    name: substrate.service
+    state: restarted

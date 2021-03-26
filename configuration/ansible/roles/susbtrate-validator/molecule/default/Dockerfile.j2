@@ -1,0 +1,45 @@
+# Molecule managed
+
+{% if item.registry is defined %}
+FROM {{ item.registry.url }}/{{ item.image }}
+{% else %}
+FROM {{ item.image }}
+{% endif %}
+
+RUN if [ $(command -v apt-get) ]; then apt-get update && apt-get install -y python sudo bash ca-certificates iptables wget && apt-get clean; \
+    elif [ $(command -v dnf) ]; then dnf makecache && dnf --assumeyes install python sudo python-devel python*-dnf bash && dnf clean all; \
+    elif [ $(command -v yum) ]; then yum makecache fast && yum install -y python sudo yum-plugin-ovl bash && sed -i 's/plugins=0/plugins=1/g' /etc/yum.conf && yum clean all; \
+    elif [ $(command -v zypper) ]; then zypper refresh && zypper install -y python sudo bash python-xml && zypper clean -a; \
+    elif [ $(command -v apk) ]; then apk update && apk add --no-cache python sudo bash ca-certificates; \
+    elif [ $(command -v xbps-install) ]; then xbps-install -Syu && xbps-install -y python sudo bash ca-certificates && xbps-remove -O; fi
+
+RUN wget https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl.py -O /usr/bin/systemctl && \
+  chmod a+x /usr/bin/systemctl && \
+  test -L /bin/systemctl || ln -sf /usr/bin/systemctl /bin/systemctl && \
+  rm -f /sbin/init && touch /sbin/systemd && ln -sf /sbin/systemd /sbin/init
+
+# mock several system binaries in the docker test image to allow the role converge
+RUN echo "#!/bin/sh\nsleep 1" > /bin/modprobe && \
+  chmod a+x /bin/modprobe && \
+  rm -f /sbin/sysctl && \
+  echo "#!/bin/sh\nsleep 1" > /sbin/sysctl && \
+  chmod a+x /sbin/sysctl && \
+  rm -f /sbin/iptables && \
+  echo "#!/bin/sh\nsleep 1 && echo iptables v1.6.1" > /sbin/iptables && \
+  chmod a+x /sbin/iptables && \
+  rm -f /sbin/ip6tables && \
+  echo "#!/bin/sh\nsleep 1 && echo ip6tables v1.6.1" > /sbin/ip6tables && \
+  chmod a+x /sbin/ip6tables && \
+  rm -f /sbin/ip6tables-restore && \
+  echo "#!/bin/sh\nsleep 1" > /sbin/ip6tables-restore && \
+  chmod a+x /sbin/ip6tables-restore && \
+  echo "#!/bin/sh\nsleep 1" > /bin/journalctl && \
+  chmod a+x /bin/journalctl
+
+RUN echo "[Unit]\nDescription=My Script\n[Service]\nType=forking\nExecStart=/bin/echo svc\n[Install]\nWantedBy=multi-user.target" > /etc/systemd/system/systemd-journald.service
+
+RUN echo IyEvdXNyL2Jpbi9lbnYgcHl0aG9uCmZyb20gQmFzZUhUVFBTZXJ2ZXIgaW1wb3J0IEJhc2VIVFRQUmVxdWVzdEhhbmRsZXIsIEhUVFBTZXJ2ZXIKaW1wb3J0IG9zCgpLRVlfUEFUSCA9ICIvaG9tZS9zdWJzdHJhdGUvLmxvY2FsL3NoYXJlL3N1YnN0cmF0ZS9jaGFpbnMva3NtYS9rZXlzdG9yZS9rZXkiCgoKY2xhc3MgUyhCYXNlSFRUUFJlcXVlc3RIYW5kbGVyKToKICAgIGRlZiBfc2V0X2hlYWRlcnMoc2VsZik6CiAgICAgICAgc2VsZi5zZW5kX3Jlc3BvbnNlKDIwMCkKICAgICAgICBzZWxmLnNlbmRfaGVhZGVyKCJDb250ZW50LXR5cGUiLCAiYXBwbGljYXR0aW9uL2pzb24iKQogICAgICAgIHNlbGYuZW5kX2hlYWRlcnMoKQoKICAgIGRlZiBkb19QT1NUKHNlbGYpOgogICAgICAgIHNlbGYuX3NldF9oZWFkZXJzKCkKCiAgICAgICAgYmFzZWRpciA9IG9zLnBhdGguZGlybmFtZShLRVlfUEFUSCkKICAgICAgICBpZiBub3Qgb3MucGF0aC5leGlzdHMoYmFzZWRpcik6CiAgICAgICAgICAgIG9zLm1ha2VkaXJzKGJhc2VkaXIpCiAgICAgICAgd2l0aCBvcGVuKEtFWV9QQVRILCAiYSIpOgogICAgICAgICAgICBvcy51dGltZShLRVlfUEFUSCwgTm9uZSkKCiAgICAgICAgc2VsZi53ZmlsZS53cml0ZSgie30iKQoKCmRlZiBydW4oc2VydmVyX2NsYXNzPUhUVFBTZXJ2ZXIsIGhhbmRsZXJfY2xhc3M9UywgcG9ydD05OTMzKToKICAgIHNlcnZlcl9hZGRyZXNzID0gKCIiLCBwb3J0KQogICAgaHR0cGQgPSBzZXJ2ZXJfY2xhc3Moc2VydmVyX2FkZHJlc3MsIGhhbmRsZXJfY2xhc3MpCiAgICBodHRwZC5zZXJ2ZV9mb3JldmVyKCkKCgppZiBfX25hbWVfXyA9PSAiX19tYWluX18iOgogICAgcnVuKCk= | base64 -d > /usr/local/bin/substrate && chmod a+x /usr/local/bin/substrate
+
+RUN useradd -m -u 1000 -U -s /bin/sh substrate
+
+RUN echo 'echo 0' > /usr/local/bin/journalctl && chmod a+x /usr/local/bin/journalctl

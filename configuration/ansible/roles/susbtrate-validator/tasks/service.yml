@@ -1,0 +1,24 @@
+---
+- name: cronjob for restarting substrate service
+  cron:
+    name: "restart substrate"
+    minute: "{{ substrate_restart_minute }}"
+    hour: "{{ substrate_restart_hour }}"
+    day: "{{ substrate_restart_day }}"
+    month: "{{ substrate_restart_month }}"
+    weekday: "{{ substrate_restart_weekday }}"
+    job: "/bin/systemctl restart substrate.service"
+  when: "substrate_restart_enabled|default(false)|bool"
+
+- name: register public ip
+  uri:
+    url: https://api.ipify.org?format=json
+  register: public_ip
+
+- name: create substrate service file
+  template:
+    src: substrate.service.j2
+    dest: /etc/systemd/system/substrate.service
+    owner: root
+    group: root
+    mode: 0600

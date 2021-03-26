@@ -1,0 +1,29 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+  flake8
+platforms:
+  - name: susbtrate-validator-validator-node
+    image: ubuntu:bionic
+    groups:
+      - validator
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+  inventory:
+    host_vars:
+      substrate-validator-validator-node:
+        substrate_network_id: ksmcc3
+        substrate_binary_url: 'https://github.com/w3f/polkadot/releases/download/v0.8.23/polkadot'
+        substrate_binary_checksum: 'sha256:cdf31d39ed54e66489d1afe74ed7549d5bcdf8ff479759e8fc476d17d069901e'
+verifier:
+  name: testinfra
+  lint:
+    name: flake8
