@@ -9,6 +9,10 @@ variable "iam_role_arn" {
   type        = string
 }
 
+variable "public_key_path" {
+  description = "The SSH public Key to access validator node(s)"
+}
+
 variable "project" {
   description = "Map of project names to configuration"
   type        = map(any)
