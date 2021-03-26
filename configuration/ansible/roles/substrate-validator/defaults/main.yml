@@ -1,5 +1,5 @@
 ---
-# defaults file for susbtrate-validator
+# defaults file for substrate-validator
 proxy_port: 80
 p2p_port: 30333
 chain: "kusama"

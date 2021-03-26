@@ -10,11 +10,11 @@
   hosts: validator
   become: yes
   roles:
-  - substrate-validator
+    - substrate-validator
 
 - name: node-exporter
   hosts: validator
   become: yes
   strategy: free
   roles:
-  - { role: node-exporter, when: node_exporter_enabled|bool }
+    - { role: node-exporter, when: node_exporter_enabled|bool }

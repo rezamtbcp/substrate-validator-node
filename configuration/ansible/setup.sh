@@ -1,19 +1,5 @@
 #!/bin/bash
 
-
-cNone='\033[00m'
-cRed='\033[01;31m'
-cGreen='\033[01;32m'
-cYellow='\033[01;33m'
-cPurple='\033[01;35m'
-cCyan='\033[01;36m'
-cWhite='\033[01;37m'
-cBold='\033[1m'
-cUnderline='\033[4m'
-
-
-
-
 function handle_error() {
   if (( $? )) ; then
     echo -e "[\e[31mERROR\e[39m]"
@@ -58,6 +44,6 @@ handle_error "$out"
 
 echo ">> Executing Ansible Playbook..."
 
-# ansible-playbook -i ${INVENTORY} ${ANSIBLE_FILES_DIR}/main.yml --become --extra-vars "ansible_become_pass='$SUDO_PW'"
+ansible-playbook -i ${INVENTORY} ${ANSIBLE_FILES_DIR}/main.yml --become --extra-vars "ansible_become_pass='$SUDO_PW'"
 
 echo ">> Completed!"

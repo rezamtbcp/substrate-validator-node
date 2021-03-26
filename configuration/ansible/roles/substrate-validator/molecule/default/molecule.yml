@@ -9,7 +9,7 @@ lint: |
   ansible-lint
   flake8
 platforms:
-  - name: susbtrate-validator-validator-node
+  - name: substrate-validator-validator-node
     image: ubuntu:bionic
     groups:
       - validator

@@ -2,4 +2,4 @@
 - name: Converge
   hosts: validator
   roles:
-    - role: susbtrate-validator
+    - role: substrate-validator

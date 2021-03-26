@@ -1,0 +1,25 @@
+- name: download substrate binary
+  get_url:
+    url: '{{ substrate_binary_url | quote }}'
+    checksum: '{{ substrate_binary_checksum | quote }}'
+    dest: /usr/local/bin/substrate-new
+    force: true
+    mode: '0700'
+    owner: 'substrate'
+    group: 'substrate'
+
+- name: restart substrate service
+  shell: |
+    set -o pipefail
+    systemctl stop substrate.service || true
+
+    if [ -f /usr/local/bin/substrate-new ]; then
+      cp /usr/local/bin/substrate-new /usr/local/bin/substrate
+      chown substrate:substrate /usr/local/bin/substrate
+      chmod 755 /usr/local/bin/substrate
+    fi
+    systemctl daemon-reload
+    systemctl enable --now substrate.service
+  args:
+    executable: /bin/bash
+  changed_when: False

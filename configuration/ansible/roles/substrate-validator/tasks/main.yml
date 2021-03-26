@@ -1,5 +1,5 @@
 ---
-# tasks file for susbtrate-validator
+# tasks file for substrate-validator
 - name: firewall setup
   import_tasks: firewall.yml
 
