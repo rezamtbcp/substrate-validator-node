@@ -30,22 +30,6 @@ module "vpc" {
   enable_vpn_gateway = false
 }
 
-# https://registry.terraform.io/modules/terraform-aws-modules/security-group/aws/latest/submodules/ssh
-module "remote_access_security_group" {
-  use_name_prefix = "false"
-  source          = "terraform-aws-modules/security-group/aws//modules/ssh"
-  version         = "3.17.0"
-
-  for_each = var.project
-
-  name        = "sg_remote_access_${each.key}_${each.value.environment}"
-  description = "Security group for Accessing Validator Nodes in VPC"
-  vpc_id      = module.vpc[each.key].vpc_id
-
-  # we might only allow this via private subnets
-  ingress_cidr_blocks = ["0.0.0.0/0"]
-}
-
 # https://github.com/terraform-aws-modules/terraform-aws-security-group
 module "traffic_security_group" {
   use_name_prefix = "false"
@@ -58,17 +42,47 @@ module "traffic_security_group" {
   description = "Security group for Validator Nodes Traffic"
   vpc_id      = module.vpc[each.key].vpc_id
 
-  ingress_cidr_blocks = ["0.0.0.0/0"]
-  ingress_rules       = ["http-80-tcp", "https-443-tcp"]
   ingress_with_cidr_blocks = [
+    {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      description = "HTTP Traffic"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      description = "HTTPS Traffic"
+      cidr_blocks = "0.0.0.0/0"
+    },
     {
       from_port   = 30333
       to_port     = 30333
       protocol    = "tcp"
-      description = "libp2p port"
+      description = "libp2p Web3 Traffic"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      description = "SSH Remote Access"
       cidr_blocks = "0.0.0.0/0"
     }
   ]
+
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      description = "Internet Public Space"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+
 }
 
 # Local Module
@@ -82,7 +96,6 @@ module "validator_nodes" {
   subnet_ids     = module.vpc[each.key].public_subnets[*]
   security_group_ids = [
     module.traffic_security_group[each.key].this_security_group_id,
-    module.remote_access_security_group[each.key].this_security_group_id,
   ]
 
   project_name = each.key
