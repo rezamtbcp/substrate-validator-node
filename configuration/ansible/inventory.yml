@@ -1,9 +1,9 @@
 # Validator 0
 [validator-0]
-192.168.44.18
+13.239.30.166
 
 [validator-0:vars]
-ansible_user=reza
+ansible_user=ubuntu
 # Preferably use a private telemetry server
 telemetryUrl=wss://telemetry.polkadot.io/submit/
 loggingFilter='sync=warn,afg=warn,babe=warn'
