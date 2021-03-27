@@ -22,8 +22,8 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ConnectTimeout=15'
 build_dir=$HOME/.config/substrate-validator-node/build/w3f/ansible
 
 # Specify which `Substrate` binary to install. Checksum is verified during execution.
-substrate_binary_url='https://github.com/paritytech/polkadot/releases/download/v0.8.2/polkadot'
-substrate_binary_checksum='sha256:349b786476de9188b79817cab48fc6fc030908ac0e8e2a46a1600625b1990758'
+substrate_binary_url='https://github.com/paritytech/polkadot/releases/download/v0.8.29/polkadot'
+substrate_binary_checksum='sha256:0b27d0cb99ca60c08c78102a9d2f513d89dfec8dbd6fdeba8b952a420cdc9fd2'
 
 # Specify the chain/network.
 substrate_network_id=polkadot
